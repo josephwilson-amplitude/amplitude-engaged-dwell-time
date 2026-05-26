@@ -97,13 +97,15 @@
     ═══════════════════════════════════════════════════════════════════════ */
 
     #tab-demo {
-      display: grid;
-      grid-template-columns: 1fr 280px;
       max-width: 1100px;
       margin: 0 auto;
       padding: 40px 24px 80px;
       gap: 24px;
       align-items: start;
+    }
+    #tab-demo.active {
+      display: grid;
+      grid-template-columns: 1fr 280px;
     }
 
     /* Stats panel */
@@ -798,7 +800,7 @@ function useEngagedDwell(plugin) {
 
   // ── Plugin ────────────────────────────────────────────────────────────────
   // 10s threshold for demo visibility; production default is 30s
-  const dwellPlugin = createEngagedDwellTimePlugin({ inactivityThreshold: 10_000 });
+  const dwellPlugin = createEngagedDwellTimePlugin({ inactivityThreshold: 30_000 });
   dwellPlugin.setup({}, amp);
 
   // ── Live stats UI ─────────────────────────────────────────────────────────
