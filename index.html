@@ -459,6 +459,9 @@
     <p class="byline">
       Move your mouse or scroll to register engagement.
       Sit still for 10 seconds to go idle — then watch the ratio diverge.
+      <em style="display:block;margin-top:4px;color:#9ca3af;font-size:12px;">
+        Demo uses a 10s idle threshold. Production default is 30s — fully configurable.
+      </em>
     </p>
     <div class="article-body">
       <p>Every product team tracks time on page. It's one of the oldest signals in digital
@@ -800,7 +803,7 @@ function useEngagedDwell(plugin) {
 
   // ── Plugin ────────────────────────────────────────────────────────────────
   // 10s threshold for demo visibility; production default is 30s
-  const dwellPlugin = createEngagedDwellTimePlugin({ inactivityThreshold: 30_000 });
+  const dwellPlugin = createEngagedDwellTimePlugin({ inactivityThreshold: 10_000 }); // 10s for demo; production default is 30s
   dwellPlugin.setup({}, amp);
 
   // ── Live stats UI ─────────────────────────────────────────────────────────
