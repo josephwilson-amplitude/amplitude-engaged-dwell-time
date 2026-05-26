@@ -561,61 +561,6 @@
 ══════════════════════════════════════════════════════════════════════════ -->
 <div id="tab-docs" class="tab-panel">
 
-  <div class="docs-hero">
-    <h1>Engaged Dwell Time Plugin</h1>
-    <p>A lightweight Amplitude Browser SDK plugin that measures how long users
-    were <em>actively engaged</em> on a page — filtering out idle periods where
-    the tab was open but the user had walked away.</p>
-  </div>
-
-  <div class="docs-section">
-    <h2>The problem with raw dwell time</h2>
-    <p>Standard dwell time is calculated as <strong>page exit timestamp − page entry
-    timestamp</strong>. This includes every second the tab was open, regardless of
-    whether the user was present. A user who loads a page, goes to make coffee, and
-    returns ten minutes later contributes ten minutes of "dwell time" — even though
-    they read nothing.</p>
-    <p>GA4 partially addresses this with <strong>Engagement Time</strong>, which pauses
-    the clock when the tab is hidden. But GA4 still counts time when the tab is visible
-    and the user is idle — the coffee scenario remains unsolved.</p>
-  </div>
-
-  <div class="docs-section">
-    <h2>How this compares to GA4</h2>
-    <table class="compare-table">
-      <thead>
-        <tr>
-          <th>Capability</th>
-          <th>Raw dwell time</th>
-          <th>GA4 engagement time</th>
-          <th>This plugin</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Pauses when tab is hidden</td>
-          <td class="no">✗ No</td><td class="yes">✓ Yes</td><td class="yes">✓ Yes</td>
-        </tr>
-        <tr>
-          <td>Pauses when user is idle in foreground</td>
-          <td class="no">✗ No</td><td class="no">✗ No</td><td class="yes">✓ Yes</td>
-        </tr>
-        <tr>
-          <td>Configurable inactivity threshold</td>
-          <td class="no">✗ No</td><td class="no">✗ Fixed</td><td class="yes">✓ Yes</td>
-        </tr>
-        <tr>
-          <td>Ships raw vs engaged for comparison</td>
-          <td class="no">✗ No</td><td class="no">✗ No</td><td class="yes">✓ Yes</td>
-        </tr>
-        <tr>
-          <td>Lives natively inside Amplitude</td>
-          <td class="no">✗ No</td><td class="no">✗ GA4 only</td><td class="yes">✓ Yes</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
   <div class="docs-section">
     <h2>How it works</h2>
     <p>The plugin uses the Amplitude Browser SDK's <strong>enrichment plugin
