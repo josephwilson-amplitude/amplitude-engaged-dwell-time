@@ -121,6 +121,24 @@
       gap: 0;
     }
 
+    #demo-instructions {
+      grid-column: 1 / -1;
+      background: var(--blue-lt);
+      border-radius: var(--radius);
+      padding: 14px 24px;
+      font-size: 14px;
+      color: var(--blue);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #demo-instructions strong { font-weight: 700; margin-right: 4px; }
+    #demo-instructions .hint {
+      margin-left: auto;
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
     #engaged-badge {
       flex-shrink: 0;
       padding: 8px 16px;
@@ -483,16 +501,15 @@
     <button id="fire-btn">Simulate Page Exit →</button>
   </div>
 
+  <div id="demo-instructions">
+    <strong>Try it:</strong>
+    Move your mouse or scroll to stay engaged. Sit still for 10 seconds and watch the badge flip to IDLE and the engaged timer freeze. Move again and it snaps back.
+    <span class="hint">10s threshold for demo · production default 30s</span>
+  </div>
+
   <div class="article-wrap">
     <div class="kicker">Product Analytics</div>
     <h1>Why Dwell Time Is Lying to You</h1>
-    <p class="byline">
-      Move your mouse or scroll to register engagement.
-      Sit still for 10 seconds to go idle, then watch the ratio diverge.
-      <em style="display:block;margin-top:4px;color:#9ca3af;font-size:12px;">
-        Demo uses a 10s idle threshold. Production default is 30s, fully configurable.
-      </em>
-    </p>
     <div class="article-body">
       <p>In content-heavy verticals like media, publishing, and e-commerce, dwell time is
       a critical signal, used as a proxy for content quality, user interest, and intent.
@@ -516,13 +533,6 @@
       any activity signal arrives within the last N seconds, the user is engaged. Once the
       window expires without a signal, the clock stops. When activity resumes, the clock
       restarts.</p>
-
-      <div class="callout">
-        <strong>Try it now</strong>
-        Stay still for 10 seconds (the demo threshold). Watch the badge flip to IDLE and
-        the engaged timer freeze while total time keeps climbing. Move your mouse and it
-        snaps back. This is exactly the gap that raw dwell time ignores.
-      </div>
 
       <h2>The tab-visibility problem</h2>
 
