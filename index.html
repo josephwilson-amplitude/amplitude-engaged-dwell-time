@@ -458,16 +458,16 @@
     <h1>Why Dwell Time Is Lying to You</h1>
     <p class="byline">
       Move your mouse or scroll to register engagement.
-      Sit still for 10 seconds to go idle — then watch the ratio diverge.
+      Sit still for 10 seconds to go idle, then watch the ratio diverge.
       <em style="display:block;margin-top:4px;color:#9ca3af;font-size:12px;">
-        Demo uses a 10s idle threshold. Production default is 30s — fully configurable.
+        Demo uses a 10s idle threshold. Production default is 30s, fully configurable.
       </em>
     </p>
     <div class="article-body">
-      <p>Every product team tracks time on page. It's one of the oldest signals in digital
-      analytics — a proxy for content quality, user interest, and intent. But there's a
-      dirty secret: raw dwell time includes every second a browser tab sat open while its
-      owner was making coffee, in a meeting, or simply distracted.</p>
+      <p>In content-heavy verticals like media, publishing, and e-commerce, dwell time is
+      a critical signal, used as a proxy for content quality, user interest, and intent.
+      But there's a dirty secret: raw dwell time includes every second a browser tab sat
+      open while its owner was making coffee, in a meeting, or simply distracted.</p>
 
       <blockquote>"A three-minute session and a thirty-second session look identical
       if the user walked away at the right moment."</blockquote>
@@ -479,7 +479,7 @@
 
       <p>The browser exposes a rich set of passive signals that prove a human is present
       and attending: mouse movements, scroll events, keyboard activity, clicks. None of
-      these require invasive instrumentation — they're standard DOM events every browser
+      these require invasive instrumentation; they're standard DOM events every browser
       has supported for twenty years.</p>
 
       <p>The key insight is to treat engagement as a <strong>sliding window</strong>. If
@@ -489,7 +489,7 @@
 
       <div class="callout">
         <strong>Try it now</strong>
-        Stay still for 10 seconds — the demo threshold. Watch the badge flip to IDLE and
+        Stay still for 10 seconds (the demo threshold). Watch the badge flip to IDLE and
         the engaged timer freeze while total time keeps climbing. Move your mouse and it
         snaps back. This is exactly the gap that raw dwell time ignores.
       </div>
@@ -498,14 +498,14 @@
 
       <p>A related issue: users with many open tabs. Your page may sit in the background
       for twenty minutes while the user reads something else. The Page Visibility API
-      handles this — when the tab hides, the plugin fires a summary event immediately
+      handles this: when the tab hides, the plugin fires a summary event immediately
       using <code>sendBeacon</code>, ensuring the data is captured even if the tab is
       killed in the background.</p>
 
       <h2>What this means for your data</h2>
 
       <p>Across typical content sites, engaged dwell time runs 40–60% of raw dwell time.
-      The gap is larger on mobile — where users put the phone down mid-read — and on
+      The gap is larger on mobile (where users put the phone down mid-read) and on
       long-form content where readers pause to think.</p>
 
       <p>More importantly, engaged dwell time correlates more strongly with downstream
@@ -513,7 +513,7 @@
       product contexts, is measuring distraction as much as intent.</p>
 
       <p>Switch to engaged dwell time. Your content quality metrics will look worse at
-      first. That's the point — you'll be seeing them clearly for the first time.</p>
+      first. That's the point: you'll be seeing them clearly for the first time.</p>
     </div>
   </div>
 
