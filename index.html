@@ -99,48 +99,83 @@
     #tab-demo {
       max-width: 1100px;
       margin: 0 auto;
-      padding: 40px 24px 80px;
-      gap: 24px;
+      padding: 24px 24px 80px;
+      gap: 20px;
       align-items: start;
     }
     #tab-demo.active {
       display: grid;
       grid-template-columns: 1fr 280px;
+      grid-template-rows: auto auto 1fr;
     }
 
-    /* Stats panel */
-    #stats {
-      position: sticky;
-      top: 72px;
+    /* ── Demo bar (full-width, top row) ───────────────────────────────────── */
+    #demo-bar {
+      grid-column: 1 / -1;
       background: #fff;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 20px;
-      font-size: 13px;
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      gap: 0;
     }
-    #stats h2 {
+
+    #engaged-badge {
+      flex-shrink: 0;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 28px;
+      transition: background 0.3s, color 0.3s;
+      white-space: nowrap;
+    }
+    #engaged-badge.active { background: var(--green-lt); color: var(--green); }
+    #engaged-badge.idle   { background: var(--red-lt);   color: var(--red);   }
+
+    .bar-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 0 24px;
+      border-left: 1px solid var(--gray-100);
+    }
+    .bar-stat-label {
       font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.07em;
       color: var(--gray-500);
-      margin-bottom: 16px;
+      margin-bottom: 2px;
     }
-    .stat-row {
+    .bar-stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--gray-900);
+      line-height: 1;
+    }
+
+    .bar-ratio-wrap {
+      flex: 1;
+      padding: 0 24px;
+      border-left: 1px solid var(--gray-100);
+    }
+    .bar-ratio-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--gray-500);
+      margin-bottom: 6px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      padding: 7px 0;
-      border-bottom: 1px solid var(--gray-100);
     }
-    .stat-row:last-of-type { border-bottom: none; }
-    .stat-label { color: var(--gray-500); }
-    .stat-value { font-variant-numeric: tabular-nums; font-weight: 600; }
     .ratio-bar-bg {
       background: var(--gray-100);
       border-radius: 4px;
-      height: 5px;
-      margin: 14px 0 16px;
+      height: 6px;
       overflow: hidden;
     }
     #ratio-bar {
@@ -150,21 +185,11 @@
       transition: width 0.6s ease;
       width: 0%;
     }
-    #engaged-badge {
-      display: block;
-      text-align: center;
-      padding: 6px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 12px;
-      transition: background 0.3s, color 0.3s;
-    }
-    #engaged-badge.active { background: var(--green-lt); color: var(--green); }
-    #engaged-badge.idle   { background: var(--red-lt);   color: var(--red);   }
+
     #fire-btn {
-      width: 100%;
-      padding: 9px;
+      flex-shrink: 0;
+      margin-left: 24px;
+      padding: 10px 20px;
       background: var(--blue);
       color: #fff;
       border: none;
@@ -173,6 +198,7 @@
       font-weight: 600;
       cursor: pointer;
       transition: opacity 0.15s;
+      white-space: nowrap;
     }
     #fire-btn:hover { opacity: 0.88; }
 
@@ -430,26 +456,30 @@
 ══════════════════════════════════════════════════════════════════════════ -->
 <div id="tab-demo" class="tab-panel active">
 
-  <div id="stats">
-    <h2>Engaged Dwell Time</h2>
-    <div class="stat-row">
-      <span class="stat-label">Engaged</span>
-      <span class="stat-value" id="val-engaged">0.0s</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">Total</span>
-      <span class="stat-value" id="val-total">0.0s</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">Idle</span>
-      <span class="stat-value" id="val-idle">0.0s</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">Engaged ratio</span>
-      <span class="stat-value" id="val-ratio">—</span>
-    </div>
-    <div class="ratio-bar-bg"><div id="ratio-bar"></div></div>
+  <div id="demo-bar">
     <div id="engaged-badge" class="active">● ENGAGED</div>
+
+    <div class="bar-stat">
+      <span class="bar-stat-label">Engaged</span>
+      <span class="bar-stat-value" id="val-engaged">0.0s</span>
+    </div>
+    <div class="bar-stat">
+      <span class="bar-stat-label">Total</span>
+      <span class="bar-stat-value" id="val-total">0.0s</span>
+    </div>
+    <div class="bar-stat">
+      <span class="bar-stat-label">Idle</span>
+      <span class="bar-stat-value" id="val-idle">0.0s</span>
+    </div>
+
+    <div class="bar-ratio-wrap">
+      <div class="bar-ratio-label">
+        <span>Engaged ratio</span>
+        <span id="val-ratio">—</span>
+      </div>
+      <div class="ratio-bar-bg"><div id="ratio-bar"></div></div>
+    </div>
+
     <button id="fire-btn">Simulate Page Exit →</button>
   </div>
 
