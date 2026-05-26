@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Engaged Dwell Time — Amplitude Plugin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:     #1853c4;
+      --blue-lt:  #e8eefb;
+      --green:    #1a7f44;
+      --green-lt: #e6f4ec;
+      --red:      #c0392b;
+      --red-lt:   #fdecea;
+      --gray-50:  #f7f8fa;
+      --gray-100: #eef0f3;
+      --gray-300: #c8cdd6;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --radius:   10px;
+      --shadow:   0 2px 16px rgba(0,0,0,0.10);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Header ───────────────────────────────────────────────────────────── */
+    header {
+      background: #fff;
+      border-bottom: 1px solid var(--gray-100);
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      height: 56px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--gray-900);
+      font-weight: 700;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+    .logo-divider { width: 1px; height: 18px; background: var(--gray-300); }
+    .logo-sub { font-weight: 500; font-size: 14px; color: var(--gray-500); }
+    nav { display: flex; gap: 2px; }
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 6px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--gray-500);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .tab-btn:hover { background: var(--gray-50); color: var(--gray-900); }
+    .tab-btn.active { background: var(--blue-lt); color: var(--blue); }
+    .header-badge {
+      margin-left: auto;
+      background: var(--gray-100);
+      color: var(--gray-500);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    /* ── Tab panels ───────────────────────────────────────────────────────── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       DEMO TAB
+    ═══════════════════════════════════════════════════════════════════════ */
+
+    #tab-demo {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* Stats panel */
+    #stats {
+      position: sticky;
+      top: 72px;
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      font-size: 13px;
+    }
+    #stats h2 {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray-500);
+      margin-bottom: 16px;
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .stat-row:last-of-type { border-bottom: none; }
+    .stat-label { color: var(--gray-500); }
+    .stat-value { font-variant-numeric: tabular-nums; font-weight: 600; }
+    .ratio-bar-bg {
+      background: var(--gray-100);
+      border-radius: 4px;
+      height: 5px;
+      margin: 14px 0 16px;
+      overflow: hidden;
+    }
+    #ratio-bar {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--blue);
+      transition: width 0.6s ease;
+      width: 0%;
+    }
+    #engaged-badge {
+      display: block;
+      text-align: center;
+      padding: 6px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      transition: background 0.3s, color 0.3s;
+    }
+    #engaged-badge.active { background: var(--green-lt); color: var(--green); }
+    #engaged-badge.idle   { background: var(--red-lt);   color: var(--red);   }
+    #fire-btn {
+      width: 100%;
+      padding: 9px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    #fire-btn:hover { opacity: 0.88; }
+
+    /* Event log */
+    #log-panel {
+      grid-column: 2;
+      background: #1a1f2e;
+      border-radius: var(--radius);
+      padding: 16px;
+      font-size: 11px;
+      font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    #log-panel h3 {
+      font-size: 10px;
+      color: #4b5563;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+    .log-entry { margin-bottom: 8px; line-height: 1.6; white-space: pre; }
+    .log-time  { color: #4b5563; }
+    .log-name  { color: #60a5fa; }
+    .log-prop  { color: #9ca3af; }
+    .log-val   { color: #86efac; }
+
+    /* Article */
+    .article-wrap { grid-column: 1; }
+    .kicker {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--blue);
+      margin-bottom: 10px;
+    }
+    .article-wrap h1 {
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
+    .byline { font-size: 14px; color: var(--gray-500); margin-bottom: 36px; }
+    .article-body p   { font-size: 17px; margin-bottom: 22px; }
+    .article-body h2  { font-size: 24px; font-weight: 700; margin: 40px 0 14px; }
+    .article-body blockquote {
+      border-left: 3px solid var(--blue);
+      padding: 4px 0 4px 20px;
+      margin: 28px 0;
+      font-size: 20px;
+      font-style: italic;
+      color: var(--gray-700);
+    }
+    .callout {
+      background: var(--blue-lt);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin: 32px 0;
+      font-size: 15px;
+    }
+    .callout strong { display: block; font-size: 15px; margin-bottom: 4px; }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       HOW IT WORKS TAB
+    ═══════════════════════════════════════════════════════════════════════ */
+
+    #tab-docs {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 48px 24px 120px;
+    }
+    .docs-hero { margin-bottom: 56px; }
+    .docs-hero h1 { font-size: 36px; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
+    .docs-hero p  { font-size: 18px; color: var(--gray-500); max-width: 560px; }
+
+    .docs-section { margin-bottom: 52px; }
+    .docs-section h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .docs-section p  { font-size: 16px; color: var(--gray-700); margin-bottom: 14px; line-height: 1.7; }
+    .docs-section ul { padding-left: 20px; margin-bottom: 14px; }
+    .docs-section li { font-size: 16px; color: var(--gray-700); margin-bottom: 6px; line-height: 1.7; }
+
+    /* Comparison table */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin: 20px 0;
+    }
+    .compare-table th {
+      background: var(--gray-50);
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gray-500);
+      border: 1px solid var(--gray-100);
+    }
+    .compare-table td {
+      padding: 10px 14px;
+      border: 1px solid var(--gray-100);
+      vertical-align: top;
+    }
+    .compare-table tr:nth-child(even) td { background: var(--gray-50); }
+    .yes { color: var(--green); font-weight: 600; }
+    .no  { color: var(--red);   font-weight: 600; }
+
+    /* Config table */
+    .config-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin: 16px 0;
+    }
+    .config-table th {
+      background: var(--gray-50);
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gray-500);
+      border: 1px solid var(--gray-100);
+    }
+    .config-table td {
+      padding: 10px 14px;
+      border: 1px solid var(--gray-100);
+      vertical-align: top;
+      font-size: 14px;
+      color: var(--gray-700);
+    }
+    .config-table tr:nth-child(even) td { background: var(--gray-50); }
+    .config-table code, .docs-section code {
+      background: var(--gray-100);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: 'SF Mono', 'Menlo', monospace;
+    }
+
+    /* Code blocks */
+    .code-block {
+      background: #1a1f2e;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin: 16px 0 24px;
+      overflow-x: auto;
+    }
+    .code-block pre { margin: 0; font-size: 13px; line-height: 1.65; }
+    .code-block .hljs { background: transparent; padding: 0; }
+
+    /* Architecture diagram */
+    .arch-diagram {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin: 20px 0;
+      font-family: 'SF Mono', 'Menlo', monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      color: var(--gray-700);
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    /* Event payload preview */
+    .event-card {
+      background: #1a1f2e;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin: 16px 0;
+      font-family: 'SF Mono', 'Menlo', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    .ev-key  { color: #60a5fa; }
+    .ev-str  { color: #86efac; }
+    .ev-num  { color: #fbbf24; }
+    .ev-punc { color: #6b7280; }
+
+    /* Step list */
+    .steps { list-style: none; padding: 0; counter-reset: steps; }
+    .steps li {
+      counter-increment: steps;
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      align-items: flex-start;
+    }
+    .steps li::before {
+      content: counter(steps);
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      background: var(--blue);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+    .step-content h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .step-content p  { font-size: 14px; color: var(--gray-500); margin: 0; }
+
+    /* Note callout */
+    .note {
+      background: #fffbeb;
+      border-left: 3px solid #f59e0b;
+      padding: 14px 18px;
+      border-radius: 0 6px 6px 0;
+      margin: 16px 0;
+      font-size: 14px;
+      color: var(--gray-700);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<header>
+  <div class="header-inner">
+    <a class="logo" href="#">
+      <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
+        <rect width="32" height="32" rx="6" fill="#1853c4"/>
+        <path d="M7 22L13 10L19 22M10.5 17.5H15.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M20 14L23 22" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="20" cy="12" r="1.3" fill="white"/>
+      </svg>
+      Amplitude
+      <span class="logo-divider"></span>
+      <span class="logo-sub">Engaged Dwell Time Plugin</span>
+    </a>
+    <nav>
+      <button class="tab-btn active" data-tab="demo">Live Demo</button>
+      <button class="tab-btn" data-tab="docs">How It Works</button>
+    </nav>
+    <span class="header-badge">v1.0 · Browser SDK 2</span>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     DEMO TAB
+══════════════════════════════════════════════════════════════════════════ -->
+<div id="tab-demo" class="tab-panel active">
+
+  <div id="stats">
+    <h2>Engaged Dwell Time</h2>
+    <div class="stat-row">
+      <span class="stat-label">Engaged</span>
+      <span class="stat-value" id="val-engaged">0.0s</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Total</span>
+      <span class="stat-value" id="val-total">0.0s</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Idle</span>
+      <span class="stat-value" id="val-idle">0.0s</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Engaged ratio</span>
+      <span class="stat-value" id="val-ratio">—</span>
+    </div>
+    <div class="ratio-bar-bg"><div id="ratio-bar"></div></div>
+    <div id="engaged-badge" class="active">● ENGAGED</div>
+    <button id="fire-btn">Simulate Page Exit →</button>
+  </div>
+
+  <div class="article-wrap">
+    <div class="kicker">Product Analytics</div>
+    <h1>Why Dwell Time Is Lying to You</h1>
+    <p class="byline">
+      Move your mouse or scroll to register engagement.
+      Sit still for 10 seconds to go idle — then watch the ratio diverge.
+    </p>
+    <div class="article-body">
+      <p>Every product team tracks time on page. It's one of the oldest signals in digital
+      analytics — a proxy for content quality, user interest, and intent. But there's a
+      dirty secret: raw dwell time includes every second a browser tab sat open while its
+      owner was making coffee, in a meeting, or simply distracted.</p>
+
+      <blockquote>"A three-minute session and a thirty-second session look identical
+      if the user walked away at the right moment."</blockquote>
+
+      <p>The result is a metric that systematically overstates engagement. Teams celebrate
+      rising average session durations that are, in part, just rising rates of distraction.</p>
+
+      <h2>What actually signals engagement?</h2>
+
+      <p>The browser exposes a rich set of passive signals that prove a human is present
+      and attending: mouse movements, scroll events, keyboard activity, clicks. None of
+      these require invasive instrumentation — they're standard DOM events every browser
+      has supported for twenty years.</p>
+
+      <p>The key insight is to treat engagement as a <strong>sliding window</strong>. If
+      any activity signal arrives within the last N seconds, the user is engaged. Once the
+      window expires without a signal, the clock stops. When activity resumes, the clock
+      restarts.</p>
+
+      <div class="callout">
+        <strong>Try it now</strong>
+        Stay still for 10 seconds — the demo threshold. Watch the badge flip to IDLE and
+        the engaged timer freeze while total time keeps climbing. Move your mouse and it
+        snaps back. This is exactly the gap that raw dwell time ignores.
+      </div>
+
+      <h2>The tab-visibility problem</h2>
+
+      <p>A related issue: users with many open tabs. Your page may sit in the background
+      for twenty minutes while the user reads something else. The Page Visibility API
+      handles this — when the tab hides, the plugin fires a summary event immediately
+      using <code>sendBeacon</code>, ensuring the data is captured even if the tab is
+      killed in the background.</p>
+
+      <h2>What this means for your data</h2>
+
+      <p>Across typical content sites, engaged dwell time runs 40–60% of raw dwell time.
+      The gap is larger on mobile — where users put the phone down mid-read — and on
+      long-form content where readers pause to think.</p>
+
+      <p>More importantly, engaged dwell time correlates more strongly with downstream
+      outcomes: return visits, conversions, subscription signups. Raw dwell time, in many
+      product contexts, is measuring distraction as much as intent.</p>
+
+      <p>Switch to engaged dwell time. Your content quality metrics will look worse at
+      first. That's the point — you'll be seeing them clearly for the first time.</p>
+    </div>
+  </div>
+
+  <div id="log-panel">
+    <h3>Amplitude Events</h3>
+    <div id="log-entries">
+      <div class="log-entry" style="color:#4b5563">Waiting for page exit event…</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     HOW IT WORKS TAB
+══════════════════════════════════════════════════════════════════════════ -->
+<div id="tab-docs" class="tab-panel">
+
+  <div class="docs-hero">
+    <h1>Engaged Dwell Time Plugin</h1>
+    <p>A lightweight Amplitude Browser SDK plugin that measures how long users
+    were <em>actively engaged</em> on a page — filtering out idle periods where
+    the tab was open but the user had walked away.</p>
+  </div>
+
+  <div class="docs-section">
+    <h2>The problem with raw dwell time</h2>
+    <p>Standard dwell time is calculated as <strong>page exit timestamp − page entry
+    timestamp</strong>. This includes every second the tab was open, regardless of
+    whether the user was present. A user who loads a page, goes to make coffee, and
+    returns ten minutes later contributes ten minutes of "dwell time" — even though
+    they read nothing.</p>
+    <p>GA4 partially addresses this with <strong>Engagement Time</strong>, which pauses
+    the clock when the tab is hidden. But GA4 still counts time when the tab is visible
+    and the user is idle — the coffee scenario remains unsolved.</p>
+  </div>
+
+  <div class="docs-section">
+    <h2>How this compares to GA4</h2>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Capability</th>
+          <th>Raw dwell time</th>
+          <th>GA4 engagement time</th>
+          <th>This plugin</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Pauses when tab is hidden</td>
+          <td class="no">✗ No</td><td class="yes">✓ Yes</td><td class="yes">✓ Yes</td>
+        </tr>
+        <tr>
+          <td>Pauses when user is idle in foreground</td>
+          <td class="no">✗ No</td><td class="no">✗ No</td><td class="yes">✓ Yes</td>
+        </tr>
+        <tr>
+          <td>Configurable inactivity threshold</td>
+          <td class="no">✗ No</td><td class="no">✗ Fixed</td><td class="yes">✓ Yes</td>
+        </tr>
+        <tr>
+          <td>Ships raw vs engaged for comparison</td>
+          <td class="no">✗ No</td><td class="no">✗ No</td><td class="yes">✓ Yes</td>
+        </tr>
+        <tr>
+          <td>Lives natively inside Amplitude</td>
+          <td class="no">✗ No</td><td class="no">✗ GA4 only</td><td class="yes">✓ Yes</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="docs-section">
+    <h2>How it works</h2>
+    <p>The plugin uses the Amplitude Browser SDK's <strong>enrichment plugin
+    interface</strong>. On <code>setup()</code> it registers lightweight activity
+    listeners and starts a 1-second accumulator tick. On page exit it fires a single
+    summary event via <code>sendBeacon</code>.</p>
+
+    <div class="arch-diagram">┌─────────────────────────────────────────────────────────────┐
+│                  EngagedDwellTimePlugin                      │
+├─────────────────────────────────────────────────────────────┤
+│  Activity listeners  (throttled to 500ms)                    │
+│  mousemove · scroll · keydown · click · touchstart · wheel   │
+│                           │                                  │
+│                           ▼                                  │
+│                   lastActivityTime = now                     │
+├─────────────────────────────────────────────────────────────┤
+│  Tick loop  (every 1 second)                                 │
+│  if (now − lastActivityTime &lt; inactivityThreshold)            │
+│    engagedTimeMs += tickDelta                                │
+├─────────────────────────────────────────────────────────────┤
+│  Exit signals  (first one wins — rest are deduped)           │
+│  visibilitychange → hidden  ─┐                               │
+│  pagehide                    ├──▶  [Engaged Dwell] Page Exit │
+│  beforeunload               ─┘    + amplitude.flush()        │
+└─────────────────────────────────────────────────────────────┘</div>
+
+    <p>The three exit signals (<code>visibilitychange</code>, <code>pagehide</code>,
+    <code>beforeunload</code>) all call the same handler. A <code>hasFired</code> flag
+    ensures exactly one event is sent regardless of how many fire together.</p>
+    <ul>
+      <li><strong>visibilitychange</strong> — primary signal on mobile; fires reliably when the app is backgrounded on iOS/Android</li>
+      <li><strong>pagehide</strong> — handles back/forward cache navigation; more reliable than <code>unload</code></li>
+      <li><strong>beforeunload</strong> — catches desktop close/refresh cases that pagehide can miss</li>
+    </ul>
+  </div>
+
+  <div class="docs-section">
+    <h2>Quick start</h2>
+    <ol class="steps">
+      <li>
+        <div class="step-content">
+          <h3>Include the Amplitude Browser SDK</h3>
+          <p>Via CDN or npm — no changes to your existing setup.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <h3>Add the plugin file</h3>
+          <p>Drop <code>engaged-dwell-time-plugin.js</code> into your project and load it after the SDK.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-content">
+          <h3>Call <code>amplitude.add()</code></h3>
+          <p>One line. The plugin self-registers its listeners and starts the tick loop.</p>
+        </div>
+      </li>
+    </ol>
+
+    <div class="code-block">
+      <pre><code class="language-html">&lt;!-- Amplitude Browser SDK --&gt;
+&lt;script src="https://unpkg.com/@amplitude/analytics-browser@2/dist/analytics-browser.umd.min.js"&gt;&lt;/script&gt;
+
+&lt;!-- Engaged Dwell Time plugin --&gt;
+&lt;script src="engaged-dwell-time-plugin.js"&gt;&lt;/script&gt;
+
+&lt;script&gt;
+  // Standard Amplitude initialisation
+  amplitude.init('YOUR_API_KEY', {
+    autocapture: { pageViews: true, sessions: true }
+  });
+
+  // Add the plugin — one line
+  amplitude.add(
+    createEngagedDwellTimePlugin({ inactivityThreshold: 30_000 })
+  );
+&lt;/script&gt;</code></pre>
+    </div>
+  </div>
+
+  <div class="docs-section">
+    <h2>The event Amplitude receives</h2>
+    <p>On page exit, a single event is fired. Both <code>engaged_time_ms</code> and
+    <code>total_time_ms</code> are included so you can compare them side-by-side in
+    any Amplitude chart.</p>
+
+    <div class="event-card">
+<span class="ev-punc">{</span>
+  <span class="ev-key">"event_type"</span><span class="ev-punc">:</span> <span class="ev-str">"[Engaged Dwell] Page Exit"</span><span class="ev-punc">,</span>
+  <span class="ev-key">"event_properties"</span><span class="ev-punc">: {</span>
+    <span class="ev-key">"engaged_time_ms"</span><span class="ev-punc">:</span>        <span class="ev-num">47200</span><span class="ev-punc">,</span>
+    <span class="ev-key">"total_time_ms"</span><span class="ev-punc">:</span>          <span class="ev-num">183000</span><span class="ev-punc">,</span>
+    <span class="ev-key">"engaged_ratio"</span><span class="ev-punc">:</span>          <span class="ev-num">0.26</span><span class="ev-punc">,</span>
+    <span class="ev-key">"page_url"</span><span class="ev-punc">:</span>               <span class="ev-str">"https://yoursite.com/blog/post"</span><span class="ev-punc">,</span>
+    <span class="ev-key">"page_title"</span><span class="ev-punc">:</span>             <span class="ev-str">"Why Dwell Time Is Lying to You"</span><span class="ev-punc">,</span>
+    <span class="ev-key">"inactivity_threshold_ms"</span><span class="ev-punc">:</span> <span class="ev-num">30000</span>
+  <span class="ev-punc">}</span>
+<span class="ev-punc">}</span></div>
+
+    <p>In Amplitude, chart <strong>[Engaged Dwell] Page Exit</strong> and visualise the
+    average of <code>engaged_time_ms</code> broken down by <code>page_url</code>.
+    Stack it against <code>total_time_ms</code> to immediately see which pages have the
+    highest idle inflation.</p>
+  </div>
+
+  <div class="docs-section">
+    <h2>Configuration</h2>
+    <table class="config-table">
+      <thead>
+        <tr><th>Option</th><th>Default</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>inactivityThreshold</code></td>
+          <td><code>30000</code></td>
+          <td>Milliseconds of inactivity before the user is considered idle. Decrease for fast-paced UI, increase for long-form reading.</td>
+        </tr>
+        <tr>
+          <td><code>tickInterval</code></td>
+          <td><code>1000</code></td>
+          <td>How often (ms) the accumulator tick runs. 1 second is the recommended value.</td>
+        </tr>
+        <tr>
+          <td><code>throttleMs</code></td>
+          <td><code>500</code></td>
+          <td>Throttle applied to activity listeners. Prevents <code>mousemove</code> firing callbacks at 60fps.</td>
+        </tr>
+        <tr>
+          <td><code>activityEvents</code></td>
+          <td><code>['mousemove', 'scroll', 'keydown', 'click', 'touchstart', 'wheel']</code></td>
+          <td>DOM events that count as engagement signals. Remove <code>mousemove</code> for lower-overhead deployments.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="docs-section">
+    <h2>Single-page app (SPA) support</h2>
+    <p>In a SPA the page never fully unloads on navigation. Call
+    <code>plugin.reset()</code> on each route change — it fires the exit event for
+    the current page and starts a fresh count for the next one.</p>
+
+    <div class="code-block">
+      <pre><code class="language-javascript">// React Router example
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+
+function useEngagedDwell(plugin) {
+  const location = useLocation();
+
+  useEffect(() => {
+    plugin.reset(); // fires exit event for previous page, resets for new one
+  }, [location.pathname]);
+}</code></pre>
+    </div>
+
+    <div class="note">
+      <strong>Note:</strong> <code>plugin.reset()</code> fires the summary event for
+      the current page before resetting — no data is lost on navigation.
+    </div>
+  </div>
+
+  <div class="docs-section">
+    <h2>Performance footprint</h2>
+    <ul>
+      <li><strong>Memory:</strong> &lt;1 KB — six primitive variables, no DOM references held open</li>
+      <li><strong>CPU:</strong> One timestamp comparison per second (tick) + one per activity event after throttle</li>
+      <li><strong>Network:</strong> One <code>sendBeacon</code> call per page exit — non-blocking, survives page teardown</li>
+      <li><strong>No dependencies</strong> beyond the Amplitude SDK you already have on the page</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ── Scripts ──────────────────────────────────────────────────────────────── -->
+<script src="https://unpkg.com/@amplitude/analytics-browser@2/dist/analytics-browser.umd.min.js"></script>
+<script src="engaged-dwell-time-plugin.js"></script>
+<script>
+  // ── Amplitude setup ───────────────────────────────────────────────────────
+  // Replace 'DEMO_API_KEY' with a real project API key to send live events.
+  const AMPLITUDE_API_KEY = 'DEMO_API_KEY';
+
+  const logEntries = document.getElementById('log-entries');
+
+  function addLogEntry(name, props) {
+    const placeholder = logEntries.querySelector('[style]');
+    if (placeholder) placeholder.remove();
+    const el = document.createElement('div');
+    el.className = 'log-entry';
+    const t = new Date().toLocaleTimeString([], { hour12: false });
+    const rows = Object.entries(props)
+      .map(([k, v]) => `  <span class="log-prop">${k}:</span> <span class="log-val">${JSON.stringify(v)}</span>`)
+      .join('\n');
+    el.innerHTML = `<span class="log-time">${t}</span> <span class="log-name">${name}</span>\n${rows}`;
+    logEntries.prepend(el);
+  }
+
+  const mockAmplitude = {
+    track(name, props) {
+      console.group(`📡 Amplitude → ${name}`);
+      console.table(props);
+      console.groupEnd();
+      addLogEntry(name, props);
+    },
+    flush() { console.log('📤 amplitude.flush() called'); },
+  };
+
+  let amp = mockAmplitude;
+  if (AMPLITUDE_API_KEY !== 'DEMO_API_KEY') {
+    amplitude.init(AMPLITUDE_API_KEY, {
+      autocapture: { pageViews: true, sessions: true }
+    });
+    amp = amplitude;
+  }
+
+  // ── Plugin ────────────────────────────────────────────────────────────────
+  // 10s threshold for demo visibility; production default is 30s
+  const dwellPlugin = createEngagedDwellTimePlugin({ inactivityThreshold: 10_000 });
+  dwellPlugin.setup({}, amp);
+
+  // ── Live stats UI ─────────────────────────────────────────────────────────
+  const valEngaged = document.getElementById('val-engaged');
+  const valTotal   = document.getElementById('val-total');
+  const valIdle    = document.getElementById('val-idle');
+  const valRatio   = document.getElementById('val-ratio');
+  const badge      = document.getElementById('engaged-badge');
+  const ratioBar   = document.getElementById('ratio-bar');
+
+  setInterval(() => {
+    const engaged = dwellPlugin.getEngagedTimeMs();
+    const total   = dwellPlugin.getTotalTimeMs();
+    const idle    = Math.max(0, total - engaged);
+    const ratio   = total > 0 ? engaged / total : 0;
+    const active  = dwellPlugin.isEngaged();
+
+    valEngaged.textContent = (engaged / 1000).toFixed(1) + 's';
+    valTotal.textContent   = (total   / 1000).toFixed(1) + 's';
+    valIdle.textContent    = (idle    / 1000).toFixed(1) + 's';
+    valRatio.textContent   = (ratio * 100).toFixed(0) + '%';
+    ratioBar.style.width   = (ratio * 100).toFixed(1) + '%';
+    badge.textContent      = active ? '● ENGAGED' : '● IDLE';
+    badge.className        = active ? 'active' : 'idle';
+  }, 200);
+
+  // ── Simulate page exit ────────────────────────────────────────────────────
+  document.getElementById('fire-btn').addEventListener('click', () => {
+    dwellPlugin.reset();
+    dwellPlugin.setup({}, amp);
+    setTimeout(() => window.dispatchEvent(new Event('pagehide')), 100);
+  });
+
+  // ── Tab switching ─────────────────────────────────────────────────────────
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ── Syntax highlighting ───────────────────────────────────────────────────
+  hljs.highlightAll();
+</script>
+
+</body>
+</html>
