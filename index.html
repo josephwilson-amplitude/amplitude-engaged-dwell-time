@@ -125,18 +125,22 @@
       grid-column: 1 / -1;
       background: var(--blue-lt);
       border-radius: var(--radius);
-      padding: 14px 24px;
-      font-size: 14px;
-      color: var(--blue);
+      padding: 11px 20px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 14px;
+      color: var(--blue);
+      line-height: 1.4;
     }
-    #demo-instructions strong { font-weight: 700; margin-right: 4px; }
+    #demo-instructions strong { font-weight: 700; }
     #demo-instructions .hint {
-      margin-left: auto;
-      font-size: 12px;
-      opacity: 0.7;
+      font-size: 11px;
+      opacity: 0.55;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     #engaged-badge {
@@ -502,9 +506,8 @@
   </div>
 
   <div id="demo-instructions">
-    <strong>Try it:</strong>
-    Move your mouse or scroll to stay engaged. Sit still for 10 seconds and watch the badge flip to IDLE and the engaged timer freeze. Move again and it snaps back.
-    <span class="hint">10s threshold for demo · production default 30s</span>
+    <span><strong>Try it:</strong> Move your mouse or scroll to stay engaged. Sit still for 10 seconds to go idle, then move again to resume.</span>
+    <span class="hint">10s demo threshold &nbsp;·&nbsp; production default 30s</span>
   </div>
 
   <div class="article-wrap">
