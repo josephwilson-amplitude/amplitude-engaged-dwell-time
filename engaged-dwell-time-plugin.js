@@ -81,17 +81,13 @@ const createEngagedDwellTimePlugin = (options = {}) => {
     clearInterval(tickTimer);
     tick(); // capture any remaining partial-second engagement
 
-    const totalTimeMs  = Date.now() - pageEntryTime;
-    const engagedRatio = totalTimeMs > 0
-      ? Math.round((engagedTimeMs / totalTimeMs) * 100) / 100
-      : 0;
+    const totalTimeMs = Date.now() - pageEntryTime;
 
     amplitudeInstance.track('[Engaged Dwell] Page Exit', {
-      engaged_time_ms:        Math.round(engagedTimeMs),
-      total_time_ms:          Math.round(totalTimeMs),
-      engaged_ratio:          engagedRatio,
-      page_url:               location.href,
-      page_title:             document.title,
+      engaged_time_ms:         Math.round(engagedTimeMs),
+      total_time_ms:           Math.round(totalTimeMs),
+      page_url:                location.href,
+      page_title:              document.title,
       inactivity_threshold_ms: inactivityThreshold,
     });
 
@@ -152,6 +148,9 @@ const createEngagedDwellTimePlugin = (options = {}) => {
       hasFired         = false;
       tickTimer        = setInterval(tick, tickInterval);
     },
+
+    // Allow the exit event to fire again (used by demo simulate button).
+    clearFired() { hasFired = false; },
 
     // Live reads for debugging / UI overlays.
     getEngagedTimeMs: () => Math.round(engagedTimeMs),

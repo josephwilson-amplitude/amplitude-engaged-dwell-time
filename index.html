@@ -666,7 +666,6 @@
   <span class="ev-key">"event_properties"</span><span class="ev-punc">: {</span>
     <span class="ev-key">"engaged_time_ms"</span><span class="ev-punc">:</span>        <span class="ev-num">47200</span><span class="ev-punc">,</span>
     <span class="ev-key">"total_time_ms"</span><span class="ev-punc">:</span>          <span class="ev-num">183000</span><span class="ev-punc">,</span>
-    <span class="ev-key">"engaged_ratio"</span><span class="ev-punc">:</span>          <span class="ev-num">0.26</span><span class="ev-punc">,</span>
     <span class="ev-key">"page_url"</span><span class="ev-punc">:</span>               <span class="ev-str">"https://yoursite.com/blog/post"</span><span class="ev-punc">,</span>
     <span class="ev-key">"page_title"</span><span class="ev-punc">:</span>             <span class="ev-str">"Why Dwell Time Is Lying to You"</span><span class="ev-punc">,</span>
     <span class="ev-key">"inactivity_threshold_ms"</span><span class="ev-punc">:</span> <span class="ev-num">30000</span>
@@ -819,10 +818,11 @@ function useEngagedDwell(plugin) {
   }, 200);
 
   // ── Simulate page exit ────────────────────────────────────────────────────
+  // Fire with the current accumulated data first, then reset for a fresh session.
   document.getElementById('fire-btn').addEventListener('click', () => {
-    dwellPlugin.reset();
-    dwellPlugin.setup({}, amp);
-    setTimeout(() => window.dispatchEvent(new Event('pagehide')), 100);
+    dwellPlugin.clearFired();
+    window.dispatchEvent(new Event('pagehide'));   // fires event with real data
+    setTimeout(() => dwellPlugin.reset(), 150);   // fresh session after event sent
   });
 
   // ── Tab switching ─────────────────────────────────────────────────────────
